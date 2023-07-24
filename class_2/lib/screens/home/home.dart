@@ -41,7 +41,7 @@ class Home extends StatelessWidget {
                 width: 100,
                 height: 100,
                 color: Colors.blue,
-                child: const Center(child: Text('Hello World')),
+                child: Image.network('https://images.unsplash.com/photo-1689890076926-afb4add0bc86?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'),
               ),
             ),
           ],

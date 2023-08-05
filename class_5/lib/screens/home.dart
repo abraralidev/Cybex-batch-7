@@ -37,6 +37,7 @@ class _HomeState extends State<Home> {
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
+        
         onTap: _onItemTapped,
         backgroundColor: colorlist[_selectedIndex],
         items: const [

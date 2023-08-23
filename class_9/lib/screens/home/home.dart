@@ -1,7 +1,10 @@
 // ignore_for_file: unused_field, use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../Auth/login.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -17,12 +20,22 @@ class _HomeState extends State<Home> {
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _imageController = TextEditingController();
   final TextEditingController _taskupdateController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
+        actions: [
+          IconButton(
+              onPressed: () async {
+                await _auth.signOut();
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => const Login()));
+              },
+              icon: const Icon(Icons.logout))
+        ],
       ),
       body: StreamBuilder(
           stream: todos.snapshots(),

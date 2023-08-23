@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, invalid_return_type_for_catch_error
 
+import 'package:class_9/screens/Auth/forgotpassword.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -68,6 +69,19 @@ class _LoginState extends State<Login> {
               ),
               const SizedBox(
                 height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ForgotPassword()));
+                      },
+                      child: const Text('Forgot Password')),
+                ],
               ),
               ElevatedButton(
                   onPressed: () {

@@ -14,13 +14,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final todos = FirebaseFirestore.instance.collection('todo');
+  final todos = FirebaseFirestore.instance.collection('users');
   final TextEditingController _taskController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _imageController = TextEditingController();
   final TextEditingController _taskupdateController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final 
+   _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: StreamBuilder(
-          stream: todos.snapshots(),
+          stream: todos.doc(_auth.currentUser!.uid).collection('cart').snapshots(),
           builder: (context, AsyncSnapshot snapshot) {
             return snapshot.hasData
                 ? ListView.builder(

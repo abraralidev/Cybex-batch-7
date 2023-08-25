@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, invalid_return_type_for_catch_error
 
 import 'package:class_9/screens/Auth/login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -16,8 +17,10 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
+  final TextEditingController username = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final usercol = FirebaseFirestore.instance.collection('users');
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +35,24 @@ class _RegisterState extends State<Register> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              TextFormField(
+                keyboardType: TextInputType.emailAddress,
+                controller: username,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your username';
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(Icons.email),
+                  labelText: 'Username',
+                  hintText: 'Enter your username',
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
               TextFormField(
                 keyboardType: TextInputType.emailAddress,
                 controller: email,
@@ -70,14 +91,20 @@ class _RegisterState extends State<Register> {
                 height: 20,
               ),
               ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     print(email.text);
                     print(password.text);
                     if (_formKey.currentState!.validate()) {
-                      _auth
+                      await _auth
                           .createUserWithEmailAndPassword(
                               email: email.text, password: password.text)
                           .then((value) => {
+                                usercol.doc(value.user!.uid).set({
+                                  'username': username.text,
+                                  'email': email.text,
+                                  'uid': value.user!.uid
+                                }),
+                                print("User Register"),
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(

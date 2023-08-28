@@ -1,5 +1,6 @@
 // ignore_for_file: unused_field, use_build_context_synchronously
 
+import 'package:class_9/screens/home/cartscreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,15 +15,14 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final todos = FirebaseFirestore.instance.collection('users');
+  final todos = FirebaseFirestore.instance.collection('todo');
   final TextEditingController _taskController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   final TextEditingController _imageController = TextEditingController();
   final TextEditingController _taskupdateController = TextEditingController();
-  final 
-   _auth = FirebaseAuth.instance;
-
+  final _auth = FirebaseAuth.instance;
+  final cart = FirebaseFirestore.instance.collection('users');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: StreamBuilder(
-          stream: todos.doc(_auth.currentUser!.uid).collection('cart').snapshots(),
+          stream: todos.snapshots(),
           builder: (context, AsyncSnapshot snapshot) {
             return snapshot.hasData
                 ? ListView.builder(
@@ -92,15 +92,36 @@ class _HomeState extends State<Home> {
                           title: Text(snapshot.data.docs[index]['name']),
                           subtitle:
                               Text('\$ ${snapshot.data.docs[index]['price']}'),
-                          trailing: IconButton(
-                              onPressed: () {
-                                // ================================== delete Function ===========================================
+                          trailing: Column(
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    // ================================== cart Function ===========================================
 
-                                todos
-                                    .doc(snapshot.data.docs[index].id)
-                                    .delete();
-                              },
-                              icon: const Icon(Icons.close)),
+                                    cart
+                                        .doc(_auth.currentUser!.uid)
+                                        .collection('cart')
+                                        .doc()
+                                        .set({
+                                      'name': snapshot.data.docs[index]['name'],
+                                      'image': snapshot.data.docs[index]
+                                          ['image'],
+                                      'price': snapshot.data.docs[index]
+                                          ['price'],
+                                    });
+                                  },
+                                  icon: const Icon(Icons.shopping_cart)),
+                              // IconButton(
+                              //     onPressed: () {
+                              //       // ================================== delete Function ===========================================
+
+                              //       todos
+                              //           .doc(snapshot.data.docs[index].id)
+                              //           .delete();
+                              //     },
+                              //     icon: const Icon(Icons.close)),
+                            ],
+                          ),
                         ),
                       );
                     })
@@ -108,52 +129,64 @@ class _HomeState extends State<Home> {
                     child: CircularProgressIndicator(),
                   );
           }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // ================================== Add task Function ===========================================
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text('Add Task'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                            hintText: 'Enter your name here'),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const CartScreen()));
+            },
+            child: const Icon(Icons.shopping_bag),
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              // ================================== Add task Function ===========================================
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Add Task'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                            controller: _nameController,
+                            decoration: const InputDecoration(
+                                hintText: 'Enter your name here'),
+                          ),
+                          TextFormField(
+                            controller: _imageController,
+                            decoration: const InputDecoration(
+                                hintText: 'Enter your image here'),
+                          ),
+                          TextFormField(
+                            controller: _priceController,
+                            decoration: const InputDecoration(
+                                hintText: 'Enter your price here'),
+                          )
+                        ],
                       ),
-                      TextFormField(
-                        controller: _imageController,
-                        decoration: const InputDecoration(
-                            hintText: 'Enter your image here'),
-                      ),
-                      TextFormField(
-                        controller: _priceController,
-                        decoration: const InputDecoration(
-                            hintText: 'Enter your price here'),
-                      )
-                    ],
-                  ),
-                  actions: [
-                    ElevatedButton(
-                        onPressed: () async {
-                          await todos.add({
-                            'date':
-                                '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
-                            'name': _nameController.text,
-                            'image': _imageController.text,
-                            'price': _priceController.text
-                          });
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Add'))
-                  ],
-                );
-              });
-        },
-        child: const Icon(Icons.add),
+                      actions: [
+                        ElevatedButton(
+                            onPressed: () async {
+                              await todos.add({
+                                'date':
+                                    '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+                                'name': _nameController.text,
+                                'image': _imageController.text,
+                                'price': _priceController.text
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Add'))
+                      ],
+                    );
+                  });
+            },
+            child: const Icon(Icons.add),
+          ),
+        ],
       ),
     );
   }

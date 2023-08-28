@@ -4,8 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../Auth/login.dart';
-
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -26,20 +24,13 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                await _auth.signOut();
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => const Login()));
-              },
-              icon: const Icon(Icons.logout))
-        ],
+        title: const Text('Cart'),
       ),
       body: StreamBuilder(
-          stream:
-              cartproducts.doc(_auth.currentUser!.uid).collection('cart').snapshots(),
+          stream: cartproducts
+              .doc(_auth.currentUser!.uid)
+              .collection('cart')
+              .snapshots(),
           builder: (context, AsyncSnapshot snapshot) {
             return snapshot.hasData
                 ? ListView.builder(
@@ -108,53 +99,6 @@ class _CartScreenState extends State<CartScreen> {
                     child: CircularProgressIndicator(),
                   );
           }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // ================================== Add task Function ===========================================
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text('Add Task'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: const InputDecoration(
-                            hintText: 'Enter your name here'),
-                      ),
-                      TextFormField(
-                        controller: _imageController,
-                        decoration: const InputDecoration(
-                            hintText: 'Enter your image here'),
-                      ),
-                      TextFormField(
-                        controller: _priceController,
-                        decoration: const InputDecoration(
-                            hintText: 'Enter your price here'),
-                      )
-                    ],
-                  ),
-                  actions: [
-                    ElevatedButton(
-                        onPressed: () async {
-                          await cartproducts.add({
-                            'date':
-                                '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
-                            'name': _nameController.text,
-                            'image': _imageController.text,
-                            'price': _priceController.text
-                          });
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Add'))
-                  ],
-                );
-              });
-        },
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }
